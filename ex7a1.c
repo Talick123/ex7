@@ -40,7 +40,7 @@ TO COMPILE:
 #include <stdio.h>
 #include <stdlib.h>
 #include <pthread.h>
-#include <pthread_np.h> //to get thread id
+//#include <pthread_np.h> //to get thread id
 
 #define ARR_SIZE 50000
 #define SEED 17
@@ -49,7 +49,7 @@ TO COMPILE:
 
 // --------const and enum section------------------------
 
-const int arr[ARR_SIZE];
+int arr[ARR_SIZE];
 enum Lock {LOCKED, UNLOCKED};
 
 // --------prototype section------------------------
@@ -91,18 +91,18 @@ void reset_arr()
 
 void create_threads_and_wait()
 {
-    p_thread thread1, thread2, thread3;
+    pthread_t thread1, thread2, thread3;
     int status;
 
-    status = p_thread_create(&thread1, NULL, fill_arr, NULL); //creating thread
+    status = pthread_create(&thread1, NULL, fill_arr, NULL); //creating thread
     if(status != 0)
         perror_and_exit("p_thread_create\n");
 
-    status = p_thread_create(&thread2, NULL, fill_arr, NULL);
+    status = pthread_create(&thread2, NULL, fill_arr, NULL);
     if(status != 0)
         perror_and_exit("p_thread_create\n");
 
-    status = p_thread_create(&thread3, NULL, fill_arr, NULL);
+    status = pthread_create(&thread3, NULL, fill_arr, NULL);
     if(status != 0)
         perror_and_exit("p_thread_create\n");
 
@@ -141,7 +141,7 @@ void *fill_arr(void *arg)
 
             if(index >= ARR_SIZE)
             {
-                shm_ptr[LOCK] = UNLOCKED; //gives other threads chance to see its full
+                arr[LOCK] = UNLOCKED; //gives other threads chance to see its full
                 print_thread_data(new_count, max, max_prime);
                 exit(EXIT_SUCCESS);
             }
@@ -193,7 +193,7 @@ int count_appearances(int curr_ind)
 void print_thread_data(int new_count, int max, int max_prime)
 {
     printf("Thread %d sent %d different new primes.",
-        pthread_getthreadid_np(), new_count);
+        pthread_self(), new_count);
 
      printf("The prime it sent most was %d, %d times \n",
         	   max_prime, max);
