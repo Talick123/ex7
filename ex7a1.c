@@ -40,7 +40,6 @@ TO COMPILE:
 #include <stdio.h>
 #include <stdlib.h>
 #include <pthread.h>
-//#include <pthread_np.h> //to get thread id
 
 #define ARR_SIZE 50000
 #define SEED 17
@@ -106,9 +105,12 @@ void create_threads_and_wait()
     if(status != 0)
         perror_and_exit("p_thread_create\n");
 
+	arr[LOCK] = UNLOCKED;
+
     pthread_join(thread1, NULL); //waiting for thread
     pthread_join(thread2, NULL);
     pthread_join(thread3, NULL);
+
 }
 
 //-------------------------------------------------
@@ -121,6 +123,7 @@ void *fill_arr(void *arg)
 
     while(true)
     {
+
         num = (rand() + 2);
 
         if(prime(num))
@@ -132,7 +135,7 @@ void *fill_arr(void *arg)
 			}
 
             while(arr[LOCK] == LOCKED)
-                sleep(1);
+                sleep(0.01);
 
             arr[LOCK] = LOCKED;
 
@@ -143,7 +146,7 @@ void *fill_arr(void *arg)
             {
                 arr[LOCK] = UNLOCKED; //gives other threads chance to see its full
                 print_thread_data(new_count, max, max_prime);
-                exit(EXIT_SUCCESS);
+                return 0;
             }
 
             arr[index] = num;
@@ -152,7 +155,7 @@ void *fill_arr(void *arg)
 
             if(other == 0)
                 new_count++;
-            else if(max < other);
+            else if(max <= other);
             {
                 max = other + 1;
                 max_prime = num;
@@ -161,6 +164,7 @@ void *fill_arr(void *arg)
             arr[LOCK] = UNLOCKED;
         }
     }
+
 }
 
 
@@ -192,10 +196,10 @@ int count_appearances(int curr_ind)
 
 void print_thread_data(int new_count, int max, int max_prime)
 {
-    printf("Thread %d sent %d different new primes.",
+    printf("Thread %d sent %d different new primes.\n",
         pthread_self(), new_count);
 
-     printf("The prime it sent most was %d, %d times \n",
+     printf("The prime it sent most was %d, %d times. \n",
         	   max_prime, max);
 }
 
