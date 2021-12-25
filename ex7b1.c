@@ -79,6 +79,10 @@ void perror_and_exit(char *msg);
 
 int main()
 {
+    signal(SIGINT, catch_sigint);
+    signal(SIGUSR1, catch_sigusr1);
+    signal(SIGUSR2, catch_sigusr2);
+
     create_threads_and_die();
     read_and_print_data();
 
@@ -125,6 +129,9 @@ void create_threads_and_die()
 
 }
 
+void catch_sigusr1(int sig_num) {
+     signal(SIGUSR1, catch_sigusr1);
+}
 //-------------------------------------------------
 
 void *read_data(void *arg)
@@ -277,6 +284,21 @@ int is_pal(int n)
     // If flag is set then print Not Palindrome
     // else print Palindrome.
     return flag;
+}
+
+//-------------------------------------------------
+
+void catch_sigusr1(int sig_num) { }
+
+//-------------------------------------------------
+
+void catch_sigusr2(int sig_num) { }
+
+//-------------------------------------------------
+
+void catch_sigint(int sig_num)
+{
+    exit(EXIT_SUCCESS);
 }
 
 //-------------------------------------------------
