@@ -98,7 +98,6 @@ int main()
 
 void create_threads_and_die()
 {
-    pthread_t thread_p, thread_q, thread_client;
     int status;
 
     status = pthread_create(&child_id[PRIME], NULL, handle_prime, NULL); //creating thread
@@ -113,11 +112,7 @@ void create_threads_and_die()
     if(status != 0)
         perror_and_exit("p_thread_create\n");
 
-
-    // pthread_join(thread1, NULL); //waiting for thread
-    // pthread_join(thread2, NULL);
-    // pthread_join(thread3, NULL);
-    pthread_exit(NULL); //?
+    pthread_exit(NULL);
 
 }
 
@@ -155,11 +150,10 @@ void p_request()
 
     scanf(" %d", &num);
     getchar();
-	puts("1");
+
     prime_arr[START_NUM] = num;
-	printf("%d ", child_id[0]);
+
     pthread_kill(child_id[0], SIGUSR1);
-puts("3");
     pause(); // wait to SIGUSR1
 
     printf("is prime ? %s\n", prime_arr[RES] ? "yes" : "no");
@@ -172,7 +166,6 @@ void q_request()
     char str[STR_SIZE];
     scanf(" %s", str);
     pali_arr[1] = str;
-    //getchar();
 
     pthread_kill(child_id[PALI], SIGUSR2);
 
@@ -189,7 +182,7 @@ void *handle_prime(void *arg)
     while(true)
     {
         pause(); //wait to SIGUSR1
-		puts("hi");
+
         res = is_prime(prime_arr[START_NUM]);
         prime_arr[RES] = res;
         sleep(0.1);
@@ -228,7 +221,7 @@ int is_prime(int num)
 }
 
 //-------------------------------------------------
-// mmmmmm ? ulay lo
+
 int is_pali(char str[], int n)
 {
     // Initialise flag to zero.
@@ -252,10 +245,7 @@ int is_pali(char str[], int n)
 
 //-------------------------------------------------
 
-void catch_sigusr1(int sig_num)
-{
-puts("sigusr1");
- }
+void catch_sigusr1(int sig_num) { }
 
 //-------------------------------------------------
 
