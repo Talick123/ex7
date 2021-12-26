@@ -1,42 +1,32 @@
 /*
-Parent Thread:
-    - creates 3 subthreads
-    - saves in global array their pids
-    - finishes
+File: ex7b.c
+Interactions Between Prime Checker, Palindrome Checker and Client
+=====================================================================
+Written by: Tali Kalev, ID:208629691, Login: talikal
+		and	Noga Levy, ID:315260927, Login: levyno
 
-First Child: "Prime server"
-    - in a loop:
-        - goes to sleep until it receives SIGUSR1
-        - reads number from his personal global array (array size = 2 cells)
-        - checks if number is prime
-        - puts result into array
-        - sends signal SIGUSR1 to "front end subthread"
+The main process creates three threads and ends. The first thread receives an
+integer via a global array and checks whether it is prime or not. The second
+thread receives a string via a global array and checks whether the string
+is a palindrome or not. The third thread reads from user p or q and then an
+integer or string respectively. The thread puts the integer/string into
+an appropriate global array and waits for the answer from the appropriate
+thread. When it receives the answer, it prints it to the standard output.
 
-Second Child: "Palindrome Server"
-    - in a loop:
-        - same as prime server except uses 3rd global array and SIGUSR2
+Compile: gcc ex7b.c -o ex7b -lpthread
 
-Third Chid: "Front End Process"
-    - in a loop:
-        - reads from user p and then number thats needs to be checked if its
-            prime or q and then string thats palindromiut needs to be checked
-        - stores input read from user into appropriate array
-        - sends signal to appropriate server
-        - goes to sleep until receives SIGUSR1 or SIGUSR2
-        - wakes, checks result, prints to output
+Run:  ./ex7b
 
+Input: p or q. If input is p and then integer.
+       If input is q and then a series of chars ending in newline.
+        Example: p
+                 7
 
-בתכנית עלולה להיווצר תקלה אם השרת ישלח את הסיגנל לתהליך ה: end front לפני
-שהאחרון עושה pause .בתור 'טלאי' אפשר שהשרת ימתין מעט )עם sleep או usleep לפני
-שהוא שולח את התשובה(
+Output: Whether the integer/string is a prime/palindrome.
+        Example:
+		is prime ? yes
 
-PROGRAM ENDS WHEN RECEIVING SIGINT
-
-- explain types of race modes exist in program
-
-
-TO COMPILE:
-    gcc myprog.c -o myprog -lpthread
+Race Modes: there are no race modes here.
 
 */
 

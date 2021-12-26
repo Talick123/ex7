@@ -1,35 +1,39 @@
 /*
+File: ex7a.c
+Generate and Collect Primes from Socket
+=====================================================================
+Written by: Tali Kalev, ID:208629691, Login: talikal
+		and	Noga Levy, ID:315260927, Login: levyno
 
-Main Thread: "Array Owner"
-    - define global variable: array of size const int ARR_SIZE = 50 000
-    - srand(17)
-    - main thread will reset array
-    - first index will act as a "lock" (like in shared memory program)
-    - main thread inserts 0 into "lock" (0 = locked, 1 = unlocked)
-    - main thread creates 3 subthreads that will generate prime numbers and
-        will add them to the array
-    - after main thread creates 3 subthreads, sets lock = 1
-    - waits for children, when they are done: array is full
-    - displays: minimum prime, max prime and number of different numbers in
-        the array
+This program creates three threads that generates random numbers. When the number
+is prime the thread adds the number to a global array. When the threads see
+that the arrays is full, it prints its data and ends. When all the threads are
+finished, the main process prints how many different numbers it received, the
+smallest number and the biggest number. The threads prints how many new primes
+it sent and the prime it sent most.out its data and ends.
 
-Subthreads: "Prime Generators"
-    - in a loop:
-        - generates number, checks if prime,
-        - while lock = 0, waits
-        - when lock = 1, changes it to 0
-        - counts how many times the prime already appears in the array
-        - adds prime to array
-        - if finds that array is full, displays how many different new primes
-            it sents and prime number they send the most to main process and
-            how often and finishes
-        - changes lock = 1
+Compile: gcc ex7a.c -o ex7a -lpthread
 
-IN README:
-    - explain types of race modes exist in program
+Run: ./ex7a
 
-TO COMPILE:
-    gcc myprog.c -o myprog -lpthread
+Input: No Input
+
+Output: From threads = prime number they send the most to main process.
+        From main process (ex7a) = minimum prime, max prime and number of
+        different numbers in the array.
+
+    Example:Thread -1711933696 sent 3488 different new primes.
+            The prime it sent most was 1117382491, 1 times.
+            Thread -1695148288 sent 39454 different new primes.
+            The prime it sent most was 153105023, 1 times.
+            Thread -1703540992 sent 7046 different new primes.
+            The prime it sent most was 1092866087, 1 times.
+            The number of different primes received is: 49987
+            The max prime is: 2147429173. The min prime is: 22091
+
+Race Mode: If 2 or more threads wait for the lock to be opened at the same time
+and stop "sleeping" at the same time, both could fill the array at the same time.
+
 */
 
 // --------include section------------------------
@@ -121,6 +125,7 @@ void *fill_arr(void *arg)
     max = max_prime = new_count = 0;
     index = START;
 
+
     while(true)
     {
 
@@ -135,7 +140,7 @@ void *fill_arr(void *arg)
 			}
 
             while(arr[LOCK] == LOCKED)
-                sleep(0.01);
+                sleep(1);
 
             arr[LOCK] = LOCKED;
 
@@ -146,7 +151,7 @@ void *fill_arr(void *arg)
             {
                 arr[LOCK] = UNLOCKED; //gives other threads chance to see its full
                 print_thread_data(new_count, max, max_prime);
-                return 0;
+                pthread_exit(NULL);
             }
 
             arr[index] = num;
@@ -172,6 +177,9 @@ void *fill_arr(void *arg)
 //check is prime
 bool prime(int num)
 {
+	if(num < 2)
+		return false;
+
 	int i;
 	for(i = 2; i*i <= num; i++)
 		if(num % i == 0)
